@@ -23,7 +23,6 @@ class CoroutineCall<T>(private val call: Call<T>) {
 
         GlobalScope.launch(lifecycleCoroutine, start) {
             val deferResponse = async(Dispatchers.IO) {
-                Thread.sleep(2000)
                 try {
                     handleResponse(call.execute())
                 } catch (e: Throwable) {
