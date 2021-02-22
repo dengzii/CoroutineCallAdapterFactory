@@ -17,17 +17,13 @@ class CoroutineCall<T>(private val call: Call<T>) {
         builder: CallbackBuilder<T>.() -> Unit
     ) {
 
-        val callback = CallbackBuilder<T>().run {
+        val callback = CallbackBuilder<T>().apply(builder).build()
+        val lifecycleCoroutine = LifecycleCoroutineContext(context)
+        lifecycleOwner?.lifecycle?.addObserver(lifecycleCoroutine)
 
-            if (lifecycleOwner != null) {
-                lifecycle(lifecycleOwner)
-            }
-
-            apply(builder)
-            build()
-        }
-        GlobalScope.launch(context, start) {
+        GlobalScope.launch(lifecycleCoroutine, start) {
             val deferResponse = async(Dispatchers.IO) {
+                Thread.sleep(2000)
                 try {
                     handleResponse(call.execute())
                 } catch (e: Throwable) {
@@ -53,8 +49,8 @@ class CoroutineCall<T>(private val call: Call<T>) {
                     callback.onCancel()
                 }
             }
-
-            deferResponse.await()?.let {
+            val response = deferResponse.await()
+            response?.let {
                 callback.onSuccess(it)
             }
             callback.onComplete()
@@ -69,7 +65,7 @@ class CoroutineCall<T>(private val call: Call<T>) {
         launch(Dispatchers.Main, CoroutineStart.DEFAULT, lifecycleOwner, builder)
     }
 
-    @Throws(IOException::class)
+    @Throws(java.lang.Exception::class)
     private fun <T> handleResponse(response: Response<T>?): T {
         if (response == null) {
             throw IOException("empty response.")
@@ -79,7 +75,7 @@ class CoroutineCall<T>(private val call: Call<T>) {
                 if (body != null) {
                     return body
                 } else {
-                    throw Exception("empty response body.")
+                    throw IOException("empty response body.")
                 }
             } else {
                 throw HttpException(response)

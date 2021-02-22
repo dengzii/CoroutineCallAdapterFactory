@@ -6,11 +6,22 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/tv_screen"
+        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/bt_start"
+        android:id="@+id/bt_a"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="start" />
+        android:text="A" />
 
+
+    <Button
+        android:id="@+id/bt_b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="B" />
 </LinearLayout>

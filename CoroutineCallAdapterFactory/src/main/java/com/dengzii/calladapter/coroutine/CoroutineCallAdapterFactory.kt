@@ -26,8 +26,6 @@ class CoroutineCallAdapterFactory private constructor() : CallAdapter.Factory() 
             "Call return type must be parameterized as CoroutineCall<Foo> or CoroutineCall<? extends Foo>"
         }
         val responseType = getParameterUpperBound(0, returnType)
-
-        retrofit.callbackExecutor()
         return CoroutineCallAdapter(responseType)
     }
 
