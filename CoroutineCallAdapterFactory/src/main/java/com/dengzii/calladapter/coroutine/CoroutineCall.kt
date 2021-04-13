@@ -26,8 +26,7 @@ class CoroutineCall<T>(private val call: Call<T>) {
                 try {
                     handleResponse(call.execute())
                 } catch (e: Throwable) {
-                    callback.onFail(e)
-                    null
+                    e
                 }
             }
             callback.onStart(object : Disposable {
@@ -49,8 +48,16 @@ class CoroutineCall<T>(private val call: Call<T>) {
                 }
             }
             val response = deferResponse.await()
-            response?.let {
-                callback.onSuccess(it)
+            if (response is Throwable) {
+                callback.onFail(response)
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                val t = response as? T
+                if (t != null) {
+                    callback.onSuccess(t)
+                } else {
+                    callback.onFail(IOException(""))
+                }
             }
             callback.onComplete()
         }
